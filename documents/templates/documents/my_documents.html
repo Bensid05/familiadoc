@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes documents | Familiadoc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { ink: '#172033', mist: '#f4f7fb', teal: '#0f766e' }, fontFamily: { sans: ['DM Sans', 'ui-sans-serif', 'system-ui'], display: ['Plus Jakarta Sans', 'ui-sans-serif'] } } } };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-mist font-sans text-ink antialiased">
+    <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
+            <div class="flex items-center gap-8">
+                <a href="{% url 'document_list' %}" class="flex items-center gap-3 font-display text-lg font-extrabold tracking-tight"><span class="grid h-10 w-10 place-items-center rounded-xl bg-teal text-xl text-white shadow-lg shadow-teal/20">✦</span>Familiadoc</a>
+                <a href="{% url 'my_documents' %}" class="hidden rounded-lg bg-teal px-3 py-2 text-sm font-bold text-white sm:block">Mes documents</a>
+            </div>
+            <form method="post" action="{% url 'logout' %}" onsubmit="return confirm('Voulez-vous vraiment vous déconnecter ?');">
+                {% csrf_token %}
+                <button type="submit" class="rounded-lg px-3 py-2 text-sm font-bold text-slate-500 transition hover:bg-rose-50 hover:text-rose-600">Se déconnecter</button>
+            </form>
+        </div>
+    </header>
+    <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
+        <div class="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+            <div>
+                <a href="{% url 'document_list' %}" class="text-sm font-bold text-teal hover:text-emerald-800">← Retour à l'accueil</a>
+                <p class="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-teal">Bibliothèque privée</p>
+                <h1 class="mt-3 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Mes documents</h1>
+                <p class="mt-3 text-slate-500">Tous les documents auxquels vous avez accès, réunis au même endroit.</p>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Documents visibles</p>
+                <p class="mt-1 font-display text-3xl font-extrabold text-teal">{{ documents|length }}</p>
+            </div>
+        </div>
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div class="flex flex-col justify-between gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
+                <h2 class="font-display text-xl font-extrabold">Votre collection</h2>
+                <label class="sm:w-64"><span class="sr-only">Rechercher un document</span><input id="document-search" type="search" placeholder="Rechercher un document..." class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"></label>
+            </div>
+            <div id="documents-list" class="divide-y divide-slate-100">
+                {% for doc in documents %}
+                    <article class="document-card flex flex-col gap-4 py-5 first:pt-6 sm:flex-row sm:items-center sm:justify-between" data-search="{{ doc.title|lower }} {{ doc.get_category_display|lower }} {{ doc.owner.username|lower }}">
+                        <div class="flex min-w-0 items-center gap-4"><div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-amber-50 text-xl text-amber-700">▤</div><div class="min-w-0"><h3 class="truncate font-bold text-slate-800">{{ doc.title }}</h3><p class="mt-1 truncate text-sm text-slate-400">{{ doc.get_category_display }} · Propriétaire : {{ doc.owner.username }} · {{ doc.uploaded_at|date:"d/m/Y H:i" }}</p></div></div>
+                        <div class="flex shrink-0 gap-2"><a href="{{ doc.file.url }}" target="_blank" rel="noopener" class="rounded-lg bg-teal px-4 py-2.5 text-center text-sm font-bold text-white transition hover:bg-emerald-800">Ouvrir</a>{% if user.role == 'PARENT' %}<form method="post" action="{% url 'delete_document' doc.id %}" onsubmit="return confirm('Supprimer définitivement ce document ?');">{% csrf_token %}<input type="hidden" name="next" value="my_documents"><button type="submit" class="rounded-lg bg-rose-50 px-3 py-2.5 text-sm font-bold text-rose-600 transition hover:bg-rose-600 hover:text-white">Supprimer</button></form>{% endif %}</div>
+                    </article>
+                {% empty %}
+                    <div class="py-16 text-center"><div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-2xl text-slate-400">▤</div><p class="mt-4 font-bold text-slate-700">Votre espace est vide</p><p class="mt-1 text-sm text-slate-400">Ajoutez un document depuis l'accueil pour le retrouver ici.</p></div>
+                {% endfor %}
+                <p id="no-results" class="hidden py-10 text-center text-sm text-slate-400">Aucun document ne correspond à votre recherche.</p>
+            </div>
+        </section>
+    </main>
+    <script src="{% static 'documents/app.js' %}"></script>
+</body>
+</html>
