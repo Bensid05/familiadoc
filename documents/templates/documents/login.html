@@ -20,7 +20,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="min-h-screen bg-mist font-sans text-ink antialiased">
+<style>
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    *, *::before, *::after { box-sizing: border-box; }
+    input, select, button { max-width: 100%; }
+</style>
+<body class="min-h-screen min-w-0 bg-mist font-sans text-ink antialiased">
     <main class="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
         <section class="relative hidden overflow-hidden bg-[#123b3a] px-12 py-12 text-white lg:flex lg:flex-col lg:justify-between">
             <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full border-[36px] border-teal-400/20"></div>
